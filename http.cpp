@@ -13,50 +13,107 @@ using namespace std;
 // optional Payload
 
 typedef vector<uint8_t> ByteBlob;
+typedef string HttpVersion;
 
 class HttpMessage{
-private:
-  string HttpVersion; //Probably dont need this
-  map<string,string> m_headers;
-  string payload;
-public:
-  virtual void decodeFirstLine(ByteBlob line) = 0;
-  string getVersion(); //Probably dont need this
-  void setHeader(string key, string value);
-  string getHeader(string key);
-  void decodeHeaderLine(ByteBlob line);
-  void setPayLoad(ByteBlob blob);
-  ByteBlob getPayload();
-}
+  private:
+    HttpVersion m_version;
+    map<string,string> m_headers;
+    ByteBlob payload;
+
+  public:
+    HttpMessage()
+      : m_version("1.0")
+      {}
+    void setHeader(string key, string value);
+    string getHeader(string key);
+    void decodeHeaderLine(ByteBlob line);
+    void setPayLoad(ByteBlob blob);
+    HttpVersion getVersion();
+    ByteBlob getPayload();
+    map<string,string> getHeaderMap();
+};
 
 
-class HttpRequest : HttpMessage{
+class HttpRequest : public HttpMessage{
   private:
     string m_method;
     string m_url;
 
   public:
-    virtual void decodeFirstLine(ByteBlob line);
-    string getMethod(); //Probably dont need this
-    void setMethod(string method); //Probably dont need this
+    HttpRequest() :
+      HttpMessage(), m_method("GET"){}
     string getUrl();
     void setUrl(string url);
+    string getMethod();
+    void printHeader();
 };
 
-class HttpResponse : HttpMessage {
+class HttpResponse : public HttpMessage {
   private:
     string m_status;
     string m_statusDescription;
 
   public:
-    virtual void decodeFirstLine(ByteBlob line);
+    HttpResponse();
+    //virtual void decodeFirstLine(ByteBlob line);
     string getStatus();
     void setStatus(string status);
     string getDescription();
     void setDescription(string description);
 
+};
+
+//////////////////////////////////////////////
+// HttpMessage Declarations
+//////////////////////////////////////////////
+HttpVersion HttpMessage::getVersion(){
+  return m_version;
 }
 
-int main(){
+void HttpMessage::setHeader(string key, string value){
+  m_headers[key] = value;
+}
 
+string HttpMessage::getHeader(string key){
+  return m_headers[key];
+}
+
+map<string, string> HttpMessage::getHeaderMap(){
+  return m_headers;
+}
+
+//////////////////////////////////////////////
+// HttpRequest Declarations
+//////////////////////////////////////////////
+
+void HttpRequest::setUrl(string url){
+  m_url = url;
+}
+
+string HttpRequest::getUrl(){
+  return m_url;
+}
+
+string HttpRequest::getMethod(){
+  return m_method;
+}
+
+void HttpRequest::printHeader(){
+  string request = "";
+  map<string, string> m = getHeaderMap();
+  for(map<string,string>::iterator it = m.begin(); it != m.end(); ++it) {
+    cout << it->first << ": " << m[it->first] << "\n";
+  }
+}
+
+
+
+int main(){
+  HttpRequest request;
+  request.setUrl("www.test.com/test");
+  cout << "First Line: " << request.getMethod() << " " << request.getUrl() << " HTTP/" << request.getVersion() << endl;
+  request.setHeader("Accept","text/html,application/xhtml+xml");
+  request.setHeader("Accept-Language","en-us,en;q=0.5");
+  request.printHeader();
 }
