@@ -14,6 +14,7 @@ using namespace std;
 
 typedef vector<uint8_t> ByteBlob;
 typedef string HttpVersion;
+typedef string HttpStatus;
 
 class HttpMessage{
   private:
@@ -47,20 +48,25 @@ class HttpRequest : public HttpMessage{
     void setUrl(string url);
     string getMethod();
     void printHeader();
+    ByteBlob encode();
 };
 
 class HttpResponse : public HttpMessage {
   private:
-    string m_status;
+    HttpStatus m_status;
     string m_statusDescription;
+    string m_data;
 
   public:
     HttpResponse();
     //virtual void decodeFirstLine(ByteBlob line);
-    string getStatus();
+    HttpStatus getStatus();
     void setStatus(string status);
     string getDescription();
     void setDescription(string description);
+    void setData(string data);
+    string getData();
+    ByteBlob encode();
 
 };
 
@@ -107,6 +113,62 @@ void HttpRequest::printHeader(){
   }
 }
 
+ByteBlob HttpRequest::encode(){
+  //Build the strings
+  string httpString;
+  string firstLine = getMethod() + " " + getUrl() + " HTTP/" + getVersion() + "\r\n";
+  string header = "";
+  map<string, string> m = getHeaderMap();
+  for(map<string,string>::iterator it = m.begin(); it != m.end(); ++it) {
+    header += it->first + ": " + m[it->first] + "\r\n";
+  }
+  httpString = firstLine + header + "\r\n";
+
+  vector<uint8_t> encoded(httpString.begin(),httpString.end());
+  return (ByteBlob) encoded;
+}
+
+//////////////////////////////////////////////
+// HttpResponse Declarations
+//////////////////////////////////////////////
+
+void HttpResponse::setStatus(string status){
+  m_status = status;
+}
+
+HttpStatus HttpResponse::getStatus(){
+  return m_status;
+}
+
+void HttpResponse::setDescription(string description){
+  m_statusDescription = description;
+}
+
+HttpStatus HttpResponse::getDescription(){
+  return m_statusDescription;
+}
+
+void HttpResponse::setData(string data){
+  m_data = data;
+}
+
+string HttpResponse::getData(){
+  return m_data;
+}
+
+ByteBlob HttpResponse::encode(){
+  //Build the strings
+  string httpString;
+  string firstLine = "HTTP/" + getVersion() + " " + getStatus() + "\r\n";
+  string header = "";
+  map<string, string> m = getHeaderMap();
+  for(map<string,string>::iterator it = m.begin(); it != m.end(); ++it) {
+    header += it->first + ": " + m[it->first] + "\r\n";
+  }
+  httpString = firstLine + header + "\r\n" + getData();
+  vector<uint8_t> encoded(httpString.begin(),httpString.end());
+  return (ByteBlob) encoded;
+}
 
 
 int main(){
@@ -115,5 +177,6 @@ int main(){
   cout << "First Line: " << request.getMethod() << " " << request.getUrl() << " HTTP/" << request.getVersion() << endl;
   request.setHeader("Accept","text/html,application/xhtml+xml");
   request.setHeader("Accept-Language","en-us,en;q=0.5");
-  request.printHeader();
+  ByteBlob b = request.encode();
+  cout << b.at(1) << endl;
 }
