@@ -3,3 +3,9 @@
 .vagrant
 web-server
 web-client
+*.suo
+Networking Project 1/Networking Project 1.sdf
+*.sln
+Networking Project 1/Networking Project 1.VC.opendb
+*.filters
+Networking Project 1/Networking Project 1/Networking Project 1.vcxproj
