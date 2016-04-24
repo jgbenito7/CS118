@@ -28,7 +28,6 @@ class HttpMessage{
       {}
     void setHeader(string key, string value);
     string getHeader(string key);
-    void decodeHeaderLine(ByteBlob line);
     void setPayLoad(ByteBlob blob);
     HttpVersion getVersion();
     ByteBlob getPayload();
@@ -49,6 +48,7 @@ class HttpRequest : public HttpMessage{
     string getMethod();
     void printHeader();
     ByteBlob encode();
+    HttpRequest decode(ByteBlob request);
 };
 
 class HttpResponse : public HttpMessage {
@@ -128,6 +128,56 @@ ByteBlob HttpRequest::encode(){
   return (ByteBlob) encoded;
 }
 
+HttpRequest HttpRequest::decode(ByteBlob request){
+  string decoded(request.begin(),request.end());
+  string delimiter = "\r\n";
+
+  HttpRequest httpR;
+
+  int itr = 0;
+
+  size_t pos = 0;
+  string token;
+  while ((pos = decoded.find(delimiter)) != string::npos) {
+      //Extract the line
+      token = decoded.substr(0, pos);
+
+      //decode the first line
+      if(itr == 0){
+        size_t first_line_pos = 0;
+        string space = " ";
+        string first_line_token;
+        int linePiece = 0;
+
+        while ((first_line_pos = token.find(space)) != string::npos) {
+          //Get a piece of the first line
+          first_line_token = token.substr(0, first_line_pos);
+          if(linePiece==1){
+            //Set the url
+            httpR.setUrl(first_line_token);
+          }
+          linePiece++;
+          token.erase(0, first_line_pos + space.length());
+        }
+      }
+
+      //Decode Header Files
+      if(itr>0){
+        size_t header_pos = 0;
+        string colon = " ";
+        string end = "\r\n";
+        cout << token << endl;
+        string first = token.substr(0,token.find(colon));
+        //string second = token.substr(token.find(colon)+2,token.find(end));
+        httpR.setHeader(first,"test");
+      }
+
+      decoded.erase(0, pos + delimiter.length());
+      itr++;
+  }
+  return httpR;
+}
+
 //////////////////////////////////////////////
 // HttpResponse Declarations
 //////////////////////////////////////////////
@@ -168,15 +218,4 @@ ByteBlob HttpResponse::encode(){
   httpString = firstLine + header + "\r\n" + getData();
   vector<uint8_t> encoded(httpString.begin(),httpString.end());
   return (ByteBlob) encoded;
-}
-
-
-int main(){
-  HttpRequest request;
-  request.setUrl("www.test.com/test");
-  cout << "First Line: " << request.getMethod() << " " << request.getUrl() << " HTTP/" << request.getVersion() << endl;
-  request.setHeader("Accept","text/html,application/xhtml+xml");
-  request.setHeader("Accept-Language","en-us,en;q=0.5");
-  ByteBlob b = request.encode();
-  cout << b.at(1) << endl;
 }
