@@ -4,7 +4,7 @@ CXXFLAGS= -g -Wall -pthread -std=c++11 $(CXXOPTIMIZE)
 USERID=EDIT_MAKE_FILE
 CLASSES=
 
-all: web-server web-client http showip
+all: web-server web-client http
 
 web-server: $(CLASSES)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $@.cpp
@@ -14,9 +14,6 @@ web-client: $(CLASSES)
 
 http: $(CLASSES)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $@.cpp
-
-showip: $(CLASSES)
-		$(CXX) -o $@ $^ $(CXXFLAGS) $@.cpp
 
 clean:
 	rm -rf *.o *~ *.gch *.swp *.dSYM web-server web-client http showip *.tar.gz

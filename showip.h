@@ -24,31 +24,18 @@ string getIP(char* address){
   int status = 0;
   if ((status = getaddrinfo(address, "80", &hints, &res)) != 0) {
     cerr << "getaddrinfo: " << gai_strerror(status) << std::endl;
-    return "error";
+    std::string er = "error";
+    return er.c_str();
   }
 
   // convert the IP to a string and print it:
   char ipstr[INET_ADDRSTRLEN] = {'\0'};
 
   for(struct addrinfo* p = res; p != 0; p = p->ai_next) {
-    // convert address to IPv4 address
     struct sockaddr_in* ipv4 = (struct sockaddr_in*)p->ai_addr;
-
     inet_ntop(p->ai_family, &(ipv4->sin_addr), ipstr, sizeof(ipstr));
-    //std::cout << "  " << ipstr << std::endl;
-    // std::cout << "  " << ipstr << ":" << ntohs(ipv4->sin_port) << std::endl;
-
   }
 
   freeaddrinfo(res); // free the linked list
-
-  return ipstr;
-}
-
-
-int main()
-{
-  cout << getIP("localhost") << endl;
-
-  return 0;
+  return string(ipstr);
 }
