@@ -58,6 +58,10 @@ class HttpResponse : public HttpMessage {
     string m_data;
 
   public:
+    static const HttpStatus 200_OK = "200 OK";
+    static const HttpStatus 400_BR = "400 Bad request";
+    static const HttpStatus 404_NF = "404 Not found";
+
     HttpResponse();
     //virtual void decodeFirstLine(ByteBlob line);
     HttpStatus getStatus();

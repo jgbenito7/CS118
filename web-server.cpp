@@ -13,6 +13,25 @@
 
 #include "http.h"
 
+typdef std::string string;
+
+HttpResponse processRequest(HttpRequest r){
+	HttpResponse resp;
+	string url = r.getUrl();
+	ifstream fileStream(url.c_str());
+  if(!fileStream.good()){
+		resp.setStatus(HttpResponse::404_NF);
+		return resp;
+	}
+	string line;
+	while ( getline (fileStream,line) )
+	 {
+		 cout << line << '\n';
+	 }
+	 myfile.close();
+
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -21,7 +40,7 @@ main(int argc, char* argv[])
 
 	char* hostN = argv[1];
 	char* portN = argv[2];
-	std::string file_dir = argv[3];
+	string file_dir = argv[3];
 
 	int portNumInt = std::stoi(portN);
 
@@ -72,9 +91,9 @@ main(int argc, char* argv[])
 	// read/write data from/into the connection
 	bool isEnd = false;
 	char buf[20] = { 0 };
-	std::stringstream ssOverall;
-	std::stringstream ssIteration;
-	const std::string endingStr = "\r\n\r\n";
+	stringstream ssOverall;
+	stringstream ssIteration;
+	const string endingStr = "\r\n\r\n";
 	unsigned int endingCount = 0;
 	while (!isEnd) {
 		memset(buf, '\0', sizeof(buf));
@@ -86,7 +105,7 @@ main(int argc, char* argv[])
 
 		ssOverall << buf;
 		ssIteration << buf;
-		std::string currString = ssIteration.str();
+		string currString = ssIteration.str();
 
 		for(unsigned int i = 0; i < currString.length(); i++){
 			if(currString[i] == endingStr[endingCount])
@@ -94,7 +113,7 @@ main(int argc, char* argv[])
 			else
 				endingCount = 0;
 			if(endingCount == 4){
-				std::string totalReqString = ssOverall.str();
+				string totalReqString = ssOverall.str();
 				vector<uint8_t> decoded(totalReqString.begin(), totalReqString.end());
 				HttpRequest req = HttpRequest::decode((ByteBlob)decoded);
 
