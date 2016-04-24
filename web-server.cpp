@@ -73,7 +73,7 @@ main(int argc, char* argv[])
 	std::stringstream ssOverall;
 	std::stringstream ssIteration;
 	std::string endingStr = "\r\n\r\n";
-	int endingCount = 0
+	unsigned int endingCount = 0;
 	while (!isEnd) {
 		memset(buf, '\0', sizeof(buf));
 
@@ -84,14 +84,15 @@ main(int argc, char* argv[])
 
 		ssOverall << buf;
 		ssIteration << buf;
-		std::string currString = ssIteration.str()
-		for(int i = 0; i < currString.length(); i++){
-			if(currString[i] = endingStr[endingCount])
+		std::string currString = ssIteration.str();
+
+		for(unsigned int i = 0; i < currString.length(); i++){
+			if(currString[i] == endingStr[endingCount])
 				endingCount++;
 			else
 				endingCount = 0;
 			if(endingCount == 4){
-				//we're done
+				HttpRequest req = HttpMessage::decode((ByteBlob)(ssOverall.str().begin(), ssOverall.str().end));
 			}
 		}
 		std::cout << buf << std::endl;
