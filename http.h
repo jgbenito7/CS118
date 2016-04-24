@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <sstream>
 
 using namespace std;
 
@@ -131,11 +132,8 @@ ByteBlob HttpRequest::encode(){
 HttpRequest HttpRequest::decode(ByteBlob request){
   string decoded(request.begin(),request.end());
   string delimiter = "\r\n";
-
   HttpRequest httpR;
-
   int itr = 0;
-
   size_t pos = 0;
   string token;
   while ((pos = decoded.find(delimiter)) != string::npos) {
@@ -163,15 +161,24 @@ HttpRequest HttpRequest::decode(ByteBlob request){
 
       //Decode Header Files
       if(itr>0){
-        //size_t header_pos = 0; //Commented out because unused
-        string colon = " ";
-        string end = "\r\n";
-        cout << token << endl;
-        string first = token.substr(0,token.find(colon));
-        //string second = token.substr(token.find(colon)+2,token.find(end));
-        httpR.setHeader(first,"test");
-      }
+        vector<string> headerStrings;
+        istringstream ss(token);
+        string s;
+        string colon = ":";
 
+        bool foundString = false;
+
+        while(getline(ss,s,':')){
+          foundString = true;
+          cout << itr << ": " << s << endl;
+          headerStrings.push_back(s);
+        }
+        if(foundString){
+          cout << headerStrings[0] << endl;
+          string modify = headerStrings.at(1).erase(0,1);
+          httpR.setHeader(headerStrings.at(0),modify);
+        }
+      }
       decoded.erase(0, pos + delimiter.length());
       itr++;
   }

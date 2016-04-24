@@ -14,5 +14,5 @@ int main(){
   ByteBlob b = request.encode();
   HttpRequest decoded = request.decode(b);
   cout << "First Line: " << decoded.getMethod() << " " << decoded.getUrl() << " HTTP/" << decoded.getVersion() << endl;
-  cout << "Header: " << decoded.getHeader("Accept") << endl;
+  decoded.printHeader();
 }
