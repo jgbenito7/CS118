@@ -9,3 +9,9 @@ Networking Project 1/Networking Project 1.sdf
 Networking Project 1/Networking Project 1.VC.opendb
 *.filters
 Networking Project 1/Networking Project 1/Networking Project 1.vcxproj
+*.tlog
+Networking Project 1/Networking Project 1/Debug/Networking Project 1.log
+*.idb
+Networking Project 1/Networking Project 1/Debug/vc140.pdb
+Vagrantfile
+Vagrantfile
