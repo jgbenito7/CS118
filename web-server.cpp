@@ -6,11 +6,10 @@
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
+#include "showip.h"
 
 #include <iostream>
 #include <sstream>
-
-#include "http.h"
 
 int
 main(int argc, char* argv[])
@@ -19,7 +18,7 @@ main(int argc, char* argv[])
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
 	char* hostN = argv[1];
-	std::string portN = argv[2];
+	char* portN = argv[2];
 	std::string file_dir = argv[3];
 
 	int portNumInt = std::stoi(portN);
@@ -33,12 +32,13 @@ main(int argc, char* argv[])
 
 	//TODO HERE
 	//Convert hostN to ip address
-
+	string hostIP = getIP(hostN);
+	cout << hostIP << endl;
 	// bind address to socket
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(portNumInt);     // short, network byte order
-	addr.sin_addr.s_addr = inet_addr(hostN);
+	addr.sin_addr.s_addr = inet_addr(hostIP.c_str());
 	memset(addr.sin_zero, '\0', sizeof(addr.sin_zero));
 
 	if (bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
@@ -83,16 +83,16 @@ main(int argc, char* argv[])
 		ss << buf << std::endl;
 		std::cout << buf << std::endl;
 
-		// if (send(clientSockfd, buf, 20, 0) == -1) {
-		// 	perror("send");
-		// 	return 6;
-		// }
 
-		// if (ss.str() == "close\n"){
-		// 	break;
-		// }
-		//
-		// ss.str("");
+		if (send(clientSockfd, buf, 20, 0) == -1) {
+			perror("send");
+			return 6;
+		}
+
+		if (ss.str() == "close\n")
+			break;
+
+		ss.str("");
 	}
 
 	close(clientSockfd);
