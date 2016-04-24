@@ -9,10 +9,20 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
+
+//#include "http.h"
 
 int
-main()
+main(int argc, char* argv[])
 {
+
+	if(argc != 2){
+		perror("Incorrect number of arguments. There should be exactly one argument: Resource URL\n");
+		return 6;
+	}
+	std::string resourceURL = argv[1];
+
 	// create a socket using TCP IP
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 

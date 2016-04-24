@@ -11,10 +11,16 @@
 #include <sstream>
 
 int
-main()
+main(int argc, char* argv[])
 {
 	// create a socket using TCP IP
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+	std::string hostN = argv[1];
+	std::string portN = argv[2];
+	std::string file_dir = argv[3];
+
+	int portNumInt = std::stoi(portN);
 
 	// allow others to reuse the address
 	int yes = 1;
@@ -23,11 +29,14 @@ main()
 		return 1;
 	}
 
+	//TODO HERE
+	//Convert hostN to ip address
+
 	// bind address to socket
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(40000);     // short, network byte order
-	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	addr.sin_port = htons(portNumInt);     // short, network byte order
+	addr.sin_addr.s_addr = inet_addr(hostN);
 	memset(addr.sin_zero, '\0', sizeof(addr.sin_zero));
 
 	if (bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)) == -1) {

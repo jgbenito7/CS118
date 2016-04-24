@@ -19,7 +19,7 @@ showip: $(CLASSES)
 		$(CXX) -o $@ $^ $(CXXFLAGS) $@.cpp
 
 clean:
-	rm -rf *.o *~ *.gch *.swp *.dSYM web-server web-client http *.tar.gz
+	rm -rf *.o *~ *.gch *.swp *.dSYM web-server web-client http showip *.tar.gz
 
 tarball: clean
 	tar -cvf $(USERID).tar.gz *
