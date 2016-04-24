@@ -48,7 +48,7 @@ class HttpRequest : public HttpMessage{
     string getMethod();
     void printHeader();
     ByteBlob encode();
-    HttpRequest decode(ByteBlob request);
+    static HttpRequest decode(ByteBlob request);
 };
 
 class HttpResponse : public HttpMessage {
@@ -163,7 +163,7 @@ HttpRequest HttpRequest::decode(ByteBlob request){
 
       //Decode Header Files
       if(itr>0){
-        size_t header_pos = 0;
+        //size_t header_pos = 0; //Commented out because unused
         string colon = " ";
         string end = "\r\n";
         cout << token << endl;

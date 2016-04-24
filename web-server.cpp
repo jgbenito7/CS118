@@ -11,6 +11,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "http.h"
+
 int
 main(int argc, char* argv[])
 {
@@ -72,7 +74,7 @@ main(int argc, char* argv[])
 	char buf[20] = { 0 };
 	std::stringstream ssOverall;
 	std::stringstream ssIteration;
-	std::string endingStr = "\r\n\r\n";
+	const std::string endingStr = "\r\n\r\n";
 	unsigned int endingCount = 0;
 	while (!isEnd) {
 		memset(buf, '\0', sizeof(buf));
@@ -92,7 +94,12 @@ main(int argc, char* argv[])
 			else
 				endingCount = 0;
 			if(endingCount == 4){
-				HttpRequest req = HttpMessage::decode((ByteBlob)(ssOverall.str().begin(), ssOverall.str().end));
+				std::string totalReqString = ssOverall.str();
+				vector<uint8_t> decoded(totalReqString.begin(), totalReqString.end());
+				HttpRequest req = HttpRequest::decode((ByteBlob)decoded);
+
+				ssOverall.str("");
+				endingCount = 0;
 			}
 		}
 		std::cout << buf << std::endl;
@@ -102,11 +109,6 @@ main(int argc, char* argv[])
 			perror("send");
 			return 6;
 		}
-
-		if (ss.str() == "close\n")
-			break;
-
-		ss.str("");
 	}
 
 	close(clientSockfd);
