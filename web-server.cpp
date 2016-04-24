@@ -70,8 +70,10 @@ main(int argc, char* argv[])
 	// read/write data from/into the connection
 	bool isEnd = false;
 	char buf[20] = { 0 };
-	std::stringstream ss;
-
+	std::stringstream ssOverall;
+	std::stringstream ssIteration;
+	std::string endingStr = "\r\n\r\n";
+	int endingCount = 0
 	while (!isEnd) {
 		memset(buf, '\0', sizeof(buf));
 
@@ -80,7 +82,18 @@ main(int argc, char* argv[])
 			return 5;
 		}
 
-		ss << buf << std::endl;
+		ssOverall << buf;
+		ssIteration << buf;
+		std::string currString = ssIteration.str()
+		for(int i = 0; i < currString.length(); i++){
+			if(currString[i] = endingStr[endingCount])
+				endingCount++;
+			else
+				endingCount = 0;
+			if(endingCount == 4){
+				//we're done
+			}
+		}
 		std::cout << buf << std::endl;
 
 
