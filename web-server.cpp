@@ -16,7 +16,7 @@ main(int argc, char* argv[])
 	// create a socket using TCP IP
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-	std::string hostN = argv[1];
+	char* hostN = argv[1];
 	std::string portN = argv[2];
 	std::string file_dir = argv[3];
 
