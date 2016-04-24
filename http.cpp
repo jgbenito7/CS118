@@ -28,7 +28,6 @@ class HttpMessage{
       {}
     void setHeader(string key, string value);
     string getHeader(string key);
-    void decodeHeaderLine(ByteBlob line);
     void setPayLoad(ByteBlob blob);
     HttpVersion getVersion();
     ByteBlob getPayload();
@@ -49,6 +48,7 @@ class HttpRequest : public HttpMessage{
     string getMethod();
     void printHeader();
     ByteBlob encode();
+    HttpRequest decode(ByteBlob request);
 };
 
 class HttpResponse : public HttpMessage {
