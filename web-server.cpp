@@ -19,19 +19,18 @@ typedef std::string string;
 HttpResponse processRequest(HttpRequest r){
 	HttpResponse resp;
 	string url = r.getUrl();
-	cout << url << endl;
-	ifstream fileStream(url.c_str());
-  if(!fileStream.good()){
+
+	std::ifstream in(url.c_str());
+	std::string contents((std::istreambuf_iterator<char>(in)),
+	    std::istreambuf_iterator<char>());
+	cout << contents << '\n';
+	if(contents.empty()){
 		resp.setStatus(HttpResponse::NF_404);
-		cout << "IT WENT WRONG!!" << endl;
 		return resp;
 	}
-	string line;
-	while ( getline (fileStream,line) )
-	 {
-		 cout << line << '\n';
-	 }
-	 fileStream.close();
+	resp.setData(contents);
+	//in.close();
+
 	 return resp;
 }
 
@@ -124,7 +123,7 @@ main(int argc, char* argv[])
 				endingCount = 0;
 			}
 		}
-		std::cout << buf << std::endl;
+		//std::cout << buf << std::endl;
 
 
 		if (send(clientSockfd, buf, 20, 0) == -1) {
