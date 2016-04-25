@@ -9,10 +9,17 @@
 #include <iostream>
 #include <sstream>
 #include "http.h"
+#include <thread>
 
 using namespace std;
 
-int main(){
+void processResponse(HttpResponse resp){
+  if(resp.getStatus() == HttpResponse::OK_200){
+
+  }
+}
+
+int doTest(){
   HttpRequest request;
   request.setUrl("./server/index.html");
   request.setHeader("Accept","text/html,application/xhtml+xml");
@@ -20,16 +27,6 @@ int main(){
   ByteBlob reqByteBlob = request.encode();
 
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-  // struct sockaddr_in addr;
-  // addr.sin_family = AF_INET;
-  // addr.sin_port = htons(40001);     // short, network byte order
-  // addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-  // memset(addr.sin_zero, '\0', sizeof(addr.sin_zero));
-  // if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
-  //   perror("bind");
-  //   return 1;
-  // }
 
   struct sockaddr_in serverAddr;
   serverAddr.sin_family = AF_INET;
@@ -56,42 +53,56 @@ int main(){
     ntohs(clientAddr.sin_port) << std::endl;
 
 
-  // send/receive data to/from connection
-  bool isEnd = false;
-  std::string input;
-  char buf[20] = { 0 };
-  std::stringstream ss;
+  // send request
   std::string reqStr(reqByteBlob.begin(), reqByteBlob.end());
   if (send(sockfd, reqStr.c_str(), reqStr.size(), 0) == -1) {
     perror("send");
     return 4;
   }
-  // while (!isEnd) {
-  //   memset(buf, '\0', sizeof(buf));
-  //
-  //   std::cout << "send: ";
-  //   std::cin >> input;
-  //   if (send(sockfd, reqStr.c_str(), reqStr.size(), 0) == -1) {
-  //     perror("send");
-  //     return 4;
-  //   }
-  //
-  //
-  //   if (recv(sockfd, buf, 20, 0) == -1) {
-  //     perror("recv");
-  //     return 5;
-  //   }
-  //   ss << buf << std::endl;
-  //   std::cout << "echo: ";
-  //   std::cout << buf << std::endl;
-  //
-  //   if (ss.str() == "close\n")
-  //     break;
-  //
-  //   ss.str("");
-  // }
+
+  //receive response
+  bool isEnd = false;
+  char buf[20] = { 0 };
+  stringstream ssOverall;
+	stringstream ssIteration;
+	const string endingStr = "\r\n\r\n";
+	unsigned int endingCount = 0;
+  while (!isEnd) {
+    memset(buf, '\0', sizeof(buf));
+
+    if (recv(sockfd, buf, 20, 0) == -1) {
+      perror("recv");
+      return 5;
+    }
+    ssOverall << buf;
+		ssIteration << buf;
+		string currString = ssIteration.str();
+
+    for(unsigned int i = 0; i < currString.length(); i++){
+			if(currString[i] == endingStr[endingCount])
+				endingCount++;
+			else
+				endingCount = 0;
+			if(endingCount == 4){
+				string totalRespString = ssOverall.str();
+				vector<uint8_t> decoded(totalRespString.begin(), totalRespString.end());
+				//HttpResponse resp = HttpResponse::decode((ByteBlob)decoded);
+				//processResponse(resp);
+
+				ssOverall.str("");
+				endingCount = 0;
+
+        isEnd = true;
+			}
+		}
+  }
 
   close(sockfd);
 
   return 0;
+}
+
+int main(){
+  thread(doTest).detach();
+  doTest();
 }
