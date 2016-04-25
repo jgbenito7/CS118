@@ -9,18 +9,21 @@
 #include "showip.h"
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 
 #include "http.h"
 
-typdef std::string string;
+typedef std::string string;
 
 HttpResponse processRequest(HttpRequest r){
 	HttpResponse resp;
 	string url = r.getUrl();
+	cout << url << endl;
 	ifstream fileStream(url.c_str());
   if(!fileStream.good()){
-		resp.setStatus(HttpResponse::404_NF);
+		resp.setStatus(HttpResponse::NF_404);
+		cout << "IT WENT WRONG!!" << endl;
 		return resp;
 	}
 	string line;
@@ -28,8 +31,8 @@ HttpResponse processRequest(HttpRequest r){
 	 {
 		 cout << line << '\n';
 	 }
-	 myfile.close();
-
+	 fileStream.close();
+	 return resp;
 }
 
 int
@@ -116,7 +119,7 @@ main(int argc, char* argv[])
 				string totalReqString = ssOverall.str();
 				vector<uint8_t> decoded(totalReqString.begin(), totalReqString.end());
 				HttpRequest req = HttpRequest::decode((ByteBlob)decoded);
-
+				processRequest(req);
 				ssOverall.str("");
 				endingCount = 0;
 			}

@@ -59,11 +59,11 @@ class HttpResponse : public HttpMessage {
     string m_data;
 
   public:
-    static const HttpStatus 200_OK = "200 OK";
-    static const HttpStatus 400_BR = "400 Bad request";
-    static const HttpStatus 404_NF = "404 Not found";
+    const static HttpStatus OK_200;
+    const static HttpStatus BR_400;
+    const static HttpStatus NF_404;
 
-    HttpResponse();
+    HttpResponse(){};
     //virtual void decodeFirstLine(ByteBlob line);
     HttpStatus getStatus();
     void setStatus(string status);
@@ -174,11 +174,11 @@ HttpRequest HttpRequest::decode(ByteBlob request){
 
         while(getline(ss,s,':')){
           foundString = true;
-          cout << itr << ": " << s << endl;
+          //cout << itr << ": " << s << endl;
           headerStrings.push_back(s);
         }
         if(foundString){
-          cout << headerStrings[0] << endl;
+          //cout << headerStrings[0] << endl;
           string modify = headerStrings.at(1).erase(0,1);
           httpR.setHeader(headerStrings.at(0),modify);
         }
@@ -192,6 +192,10 @@ HttpRequest HttpRequest::decode(ByteBlob request){
 //////////////////////////////////////////////
 // HttpResponse Declarations
 //////////////////////////////////////////////
+
+const HttpStatus HttpResponse::OK_200 = "200 OK";
+const HttpStatus HttpResponse::BR_400 = "400 Bad request";
+const HttpStatus HttpResponse::NF_404 = "404 Not found";
 
 void HttpResponse::setStatus(string status){
   m_status = status;
