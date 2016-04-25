@@ -7,12 +7,6 @@
 
 using namespace std;
 
-/////////////////////////
-// HttpRequest needs:
-// Method : URL : Version
-// List of headers
-// optional Payload
-
 typedef vector<uint8_t> ByteBlob;
 typedef string HttpVersion;
 typedef string HttpStatus;
@@ -70,8 +64,10 @@ class HttpResponse : public HttpMessage {
     string getDescription();
     void setDescription(string description);
     void setData(string data);
+    void printHeader();
     string getData();
     ByteBlob encode();
+    static HttpResponse decode(ByteBlob response);
 
 };
 
@@ -221,6 +217,14 @@ string HttpResponse::getData(){
   return m_data;
 }
 
+void HttpResponse::printHeader(){
+  string request = "";
+  map<string, string> m = getHeaderMap();
+  for(map<string,string>::iterator it = m.begin(); it != m.end(); ++it) {
+    cout << it->first << ": " << m[it->first] << "\n";
+  }
+}
+
 ByteBlob HttpResponse::encode(){
   //Build the strings
   string httpString;
@@ -230,7 +234,86 @@ ByteBlob HttpResponse::encode(){
   for(map<string,string>::iterator it = m.begin(); it != m.end(); ++it) {
     header += it->first + ": " + m[it->first] + "\r\n";
   }
-  httpString = firstLine + header + "\r\n" + getData();
+  httpString = firstLine + header + "\r\n" + getData() + "\r\n";
   vector<uint8_t> encoded(httpString.begin(),httpString.end());
   return (ByteBlob) encoded;
+}
+
+HttpResponse HttpResponse::decode(ByteBlob response){
+  string decoded(response.begin(),response.end());
+  string delimiter = "\r\n";
+  HttpResponse httpR;
+  int itr = 0;
+  size_t pos = 0;
+  string token;
+  bool headerEnd = false;
+
+  while ((pos = decoded.find(delimiter)) != string::npos) {
+      //Extract the line
+      token = decoded.substr(0, pos);
+
+      /*cout << "token: " << token << endl;
+
+      if(token==""){
+        cout << "yee" << endl;
+      }*/
+
+      //decode the first line
+      if(itr == 0){
+        size_t first_line_pos = 0;
+        string space = " ";
+        string first_line_token;
+        int linePiece = 0;
+
+        while ((first_line_pos = token.find(space)) != string::npos) {
+          //Get a piece of the first line
+          first_line_token = token.substr(0, first_line_pos);
+
+          //See what the status is
+          if(linePiece==1){
+            if(first_line_token=="200"){
+              httpR.setStatus(HttpResponse::OK_200);
+            }else if(first_line_token=="400"){
+              httpR.setStatus(HttpResponse::BR_400);
+            }else if(first_line_token=="404"){
+              httpR.setStatus(HttpResponse::NF_404);
+            }
+          }
+          linePiece++;
+          token.erase(0, first_line_pos + space.length());
+        }
+      }
+
+      //Check if we reached the end of the header section
+      if(token==""){
+        headerEnd = true;
+      }
+
+      //Decode Header Files
+      if(itr>0 && !headerEnd){
+        vector<string> headerStrings;
+        istringstream ss(token);
+        string s;
+        string colon = ":";
+
+        bool foundString = false;
+
+        while(getline(ss,s,':')){
+          foundString = true;
+          //cout << itr << ": " << s << endl;
+          headerStrings.push_back(s);
+        }
+        if(foundString){
+          //cout << headerStrings[0] << endl;
+          string modify = headerStrings.at(1).erase(0,1);
+          httpR.setHeader(headerStrings.at(0),modify);
+        }
+      }else if(headerEnd){
+        httpR.setData(token);
+      }
+
+      decoded.erase(0, pos + delimiter.length());
+      itr++;
+  }
+  return httpR;
 }
