@@ -33,6 +33,7 @@ HttpResponse processRequest(HttpRequest r){
 		return resp;
 	}
 	resp.setData(contents);
+	resp.setStat(HttpResponse::OK_200);
 	//in.close();
 
 	return resp;
