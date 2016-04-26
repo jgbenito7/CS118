@@ -93,6 +93,7 @@ int doTest(){
 				endingCount = 0;
 
         isEnd = true;
+        break;
 			}
 		}
   }

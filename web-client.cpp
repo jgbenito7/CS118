@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
     // receive response
     bool isEnd = false;
     std::string input;
-    char buf[20] = { 0 };
+    char buf[1000] = { 0 };
     std::stringstream ssOverall;
     std::stringstream ssIteration;
     const string endingStr = "\r\n\r\n";
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
     while(!isEnd) {
       memset(buf, '\0', sizeof(buf));
 
-      if (recv(sockfd, buf, 20, 0) == -1) {
+      if (recv(sockfd, buf, 1000, 0) == -1) {
       	perror("recv");
       	return 5;
       }
@@ -150,11 +150,15 @@ int main(int argc, char* argv[])
       	  endingCount = 0;
       	if (endingCount == 4) {
       	  std::string totalRespString = ssOverall.str();
+					cout << "--------totalRespString-------- " << endl << totalRespString << endl;
+
       	  vector<uint8_t> decoded(totalRespString.begin(), totalRespString.end());
       	  response = HttpResponse::decode((ByteBlob)decoded);
+					cout << "DATA: " << endl << response.getData() << endl;
       	  ssOverall.str("");
       	  endingCount = 0;
       	  isEnd = true;
+					break;
       	}
       }
     }
@@ -174,7 +178,7 @@ int main(int argc, char* argv[])
 
     // parse to distinguish success or failure
     HttpStatus status = response.getStatus();
-    cout << "Status: " << status << endl;
+    // cout << "Status: " << status << endl;
     if (status == HttpResponse::OK_200)
       std::cout << "200 OK\nSaving file to " << filename << "\n";
     else if (status == HttpResponse::BR_400)
@@ -182,7 +186,7 @@ int main(int argc, char* argv[])
     else if (status == HttpResponse::NF_404)
       std::cout << "404 Not Found\n";
     else
-      std::cout << "Unrecognized status code";
+      std::cout << "Unrecognized status code: " << status << endl;
 
     // exit if unsuccessful
     if(status != HttpResponse::OK_200)
@@ -195,6 +199,7 @@ int main(int argc, char* argv[])
     }
     else {
       os << response.getData();
+			os.close();
     }
     // free stuff, close socket
     close(sockfd);

@@ -32,6 +32,10 @@ HttpResponse processRequest(HttpRequest r){
 		resp.setStatus(HttpResponse::NF_404);
 		return resp;
 	}
+	resp.setHeader("content-language", "en");
+	resp.setHeader("content-type", "text/html; charset=UTF-8");
+	// resp.setHeader("Accept", "text/html,application/xhtml+xml");
+	//resp.setHeader("Accept-Language", "en-us,en;q=0.5");
 	resp.setData(contents);
 	resp.setStatus(HttpResponse::OK_200);
 	//in.close();
@@ -42,7 +46,7 @@ HttpResponse processRequest(HttpRequest r){
 void receiveRequest(int clientSockfd){
 	// read/write data from/into the connection
 	bool isEnd = false;
-	char buf[500] = { 0 };
+	char buf[1000] = { 0 };
 	stringstream ssOverall;
 	stringstream ssIteration;
 	const string endingStr = "\r\n\r\n";
@@ -51,9 +55,8 @@ void receiveRequest(int clientSockfd){
 	while (!isEnd) {
 		memset(buf, '\0', sizeof(buf));
 
-		if (recv(clientSockfd, buf, 500, 0) == -1) {
+		if (recv(clientSockfd, buf, 1000, 0) == -1) {
 			perror("recv");
-			close(clientSockfd);
 			return;// 5;
 		}
 
@@ -80,11 +83,15 @@ void receiveRequest(int clientSockfd){
 					return;// 6;
 				}
 
-				ssOverall.str("");
-				endingCount = 0;
+				//ssOverall.str(""); doesn't matter, we're closing connection
+				//endingCount = 0;
+				isEnd = true;
+				break;
 			}
 		}
 	}
+	close(clientSockfd);
+
 }
 
 int
