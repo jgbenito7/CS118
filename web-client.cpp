@@ -131,36 +131,31 @@ int main(int argc, char* argv[])
     while(!isEnd) {
       memset(buf, '\0', sizeof(buf));
 
-      std::cout <<"send: ";
-      std::cin >> input;
-      if (send(sockfd, input.c_str(), input.size(), 0) == -1) {
-	perror("send");
-	return 4;
-      }
-
       if (recv(sockfd, buf, 20, 0) == -1) {
-	perror("recv");
-	return 5;
+      	perror("recv");
+      	return 5;
       }
 
       ssOverall << buf;
       ssIteration << buf;
       string currString = ssIteration.str();
 
+      cout << currString << endl;
+
       // Test for end reached
       for (unsigned int i = 0; i < currString.length(); i++) {
-	if (currString[i] == endingStr[endingCount])
-	  endingCount++;
-	else
-	  endingCount = 0;
-	if (endingCount == 4) {
-	  std::string totalRespString = ssOverall.str();
-	  vector<uint8_t> decoded(totalRespString.begin(), totalRespString.end());
-	  response = HttpResponse::decode((ByteBlob)decoded);
-	  ssOverall.str("");
-	  endingCount = 0;
-	  isEnd = true;
-	}
+      	if (currString[i] == endingStr[endingCount])
+      	  endingCount++;
+      	else
+      	  endingCount = 0;
+      	if (endingCount == 4) {
+      	  std::string totalRespString = ssOverall.str();
+      	  vector<uint8_t> decoded(totalRespString.begin(), totalRespString.end());
+      	  response = HttpResponse::decode((ByteBlob)decoded);
+      	  ssOverall.str("");
+      	  endingCount = 0;
+      	  isEnd = true;
+      	}
       }
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -179,15 +174,18 @@ int main(int argc, char* argv[])
 
     // parse to distinguish success or failure
     HttpStatus status = response.getStatus();
-    if (status == "OK_200")
+    cout << "Status: " << status << endl;
+    if (status == HttpResponse::OK_200)
       std::cout << "200 OK\nSaving file to " << filename << "\n";
-    else if (status == "BR_400")
+    else if (status == HttpResponse::BR_400)
       std::cout << "400 Bad Request\n";
-    else /* (status == "NF_404") */
+    else if (status == HttpResponse::NF_404)
       std::cout << "404 Not Found\n";
+    else
+      std::cout << "Unrecognized status code";
 
     // exit if unsuccessful
-    if(status != "OK_200")
+    if(status != HttpResponse::OK_200)
       exit(1);
 
     // save to current directory
