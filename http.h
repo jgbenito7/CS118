@@ -254,12 +254,10 @@ HttpResponse HttpResponse::decode(ByteBlob response){
       //Extract the line
       token = decoded.substr(0, pos);
 
-
-
       if(token==""){
-        cout << "blank string" << endl;
+        //cout << "blank string" << endl;
       }else{
-        cout << "token: " << token << endl;
+        //cout << "token: " << token << endl;
       }
 
       //decode the first line
@@ -313,8 +311,8 @@ HttpResponse HttpResponse::decode(ByteBlob response){
           httpR.setHeader(headerStrings.at(0),modify);
         }
       }else if(headerEnd){
-        data+=token;
-        //httpR.setData(token);
+        data = decoded.erase(0,2);
+        break;
       }
 
       decoded.erase(0, pos + delimiter.length());
