@@ -12,8 +12,8 @@ int main(){
   response.setHeader("Date","Fri, 08 Aug 2003 08:12:31 GMT");
   response.setHeader("A","Test");
   response.setHeader("Content-Type", "text/html");
-
-  response.setData("<html><body><h1>Yo whats up</h1></body></html>");
+  string data = string("<html>") + "\r\n" + "<body><h1>Yo whats up</h1></body></html>" + "\r\n";
+  response.setData(data);
   ByteBlob b = response.encode();
   HttpResponse decoded = response.decode(b);
 

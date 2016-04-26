@@ -248,15 +248,19 @@ HttpResponse HttpResponse::decode(ByteBlob response){
   string token;
   bool headerEnd = false;
 
+  string data = "";
+
   while ((pos = decoded.find(delimiter)) != string::npos) {
       //Extract the line
       token = decoded.substr(0, pos);
 
-      /*cout << "token: " << token << endl;
+
 
       if(token==""){
-        cout << "yee" << endl;
-      }*/
+        cout << "blank string" << endl;
+      }else{
+        cout << "token: " << token << endl;
+      }
 
       //decode the first line
       if(itr == 0){
@@ -309,11 +313,13 @@ HttpResponse HttpResponse::decode(ByteBlob response){
           httpR.setHeader(headerStrings.at(0),modify);
         }
       }else if(headerEnd){
-        httpR.setData(token);
+        data+=token;
+        //httpR.setData(token);
       }
 
       decoded.erase(0, pos + delimiter.length());
       itr++;
   }
+  httpR.setData(data);
   return httpR;
 }
