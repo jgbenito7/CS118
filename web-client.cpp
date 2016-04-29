@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
       ssIteration << buf;
       string currString = ssIteration.str();
 
-      cout << currString << endl;
+      //cout << currString << endl;
 
       // Test for end reached
       for (unsigned int i = 0; i < currString.length(); i++) {
@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
 
       	  vector<uint8_t> decoded(totalRespString.begin(), totalRespString.end());
       	  response = HttpResponse::decode((ByteBlob)decoded);
-					cout << "DATA: " << endl << response.getData() << endl;
+					//cout << "DATA: " << endl << response.getData() << endl;
       	  ssOverall.str("");
       	  endingCount = 0;
       	  isEnd = true;
@@ -198,7 +198,11 @@ int main(int argc, char* argv[])
       std::cerr<<"Error writing to ..."<<std::endl;
     }
     else {
-      os << response.getData();
+      ByteBlob data = response.getData();
+      //os << response.getData();
+      for(ByteBlob::iterator x=data.begin(); x<data.end(); x++){
+        cout << *x;
+      }
 			os.close();
     }
     // free stuff, close socket

@@ -50,7 +50,7 @@ class HttpResponse : public HttpMessage {
   private:
     HttpStatus m_status;
     string m_statusDescription;
-    string m_data;
+    ByteBlob m_data;
 
   public:
     const static HttpStatus OK_200;
@@ -63,9 +63,9 @@ class HttpResponse : public HttpMessage {
     void setStatus(string status);
     string getDescription();
     void setDescription(string description);
-    void setData(string data);
+    void setData(ByteBlob data);
     void printHeader();
-    string getData();
+    ByteBlob getData();
     ByteBlob encode();
     static HttpResponse decode(ByteBlob response);
 
@@ -209,11 +209,11 @@ HttpStatus HttpResponse::getDescription(){
   return m_statusDescription;
 }
 
-void HttpResponse::setData(string data){
+void HttpResponse::setData(ByteBlob data){
   m_data = data;
 }
 
-string HttpResponse::getData(){
+ByteBlob HttpResponse::getData(){
   return m_data;
 }
 
@@ -234,21 +234,56 @@ ByteBlob HttpResponse::encode(){
   for(map<string,string>::iterator it = m.begin(); it != m.end(); ++it) {
     header += it->first + ": " + m[it->first] + "\r\n";
   }
-  httpString = firstLine + header + "\r\n" + getData() + "\r\n";
+  httpString = firstLine + header + "\r\n";
+  //Encode the http header as a byteblob
   vector<uint8_t> encoded(httpString.begin(),httpString.end());
+  vector<uint8_t> data = getData();
+  //Append the header blob to the data blob and return
+  encoded.insert(encoded.end(), data.begin(), data.end());
   return (ByteBlob) encoded;
 }
 
 HttpResponse HttpResponse::decode(ByteBlob response){
-  string decoded(response.begin(),response.end());
+  ///////////////////////////////////////////////////////
+  // First Find Where The Header Ends and Store the String
+  ///////////////////////////////////////////////////////
+
+  int crlfCount = 0;
+  int charCount = 0;
+  while(true){
+    char c1 = response.at(charCount);
+    char c2 = response.at(charCount + 1);
+    if(c1 == '\r' && c2 == '\n'){
+      crlfCount++;
+    }else{
+      crlfCount = 0;
+    }
+
+    if(crlfCount == 2){
+      charCount+=2;
+      break;
+    }
+
+    charCount+=2;
+  }
+
+  //Save the http header as a string
+  string decoded = "";
+  for(int i=0; i<charCount; i++){
+    decoded+=response.at(i);
+  }
+
+  ///////////////////////////////////////////////////////
+  // Parse the header string to extract info
+  ///////////////////////////////////////////////////////
+
   string delimiter = "\r\n";
   HttpResponse httpR;
   int itr = 0;
   size_t pos = 0;
   string token;
   bool headerEnd = false;
-
-  string data = "";
+  ByteBlob data;
 
   while ((pos = decoded.find(delimiter)) != string::npos) {
       //Extract the line
@@ -302,16 +337,17 @@ HttpResponse HttpResponse::decode(ByteBlob response){
 
         while(getline(ss,s,':')){
           foundString = true;
-          //cout << itr << ": " << s << endl;
           headerStrings.push_back(s);
         }
         if(foundString){
-          //cout << headerStrings[0] << endl;
           string modify = headerStrings.at(1).erase(0,1);
           httpR.setHeader(headerStrings.at(0),modify);
         }
       }else if(headerEnd){
-        data = decoded.erase(0,2);
+        //Save the remainder of the response as a byteblob of data
+        for(ByteBlob::iterator x=(response.begin()+90); x<response.end(); x++){
+          data.push_back(*x);
+        }
         break;
       }
 

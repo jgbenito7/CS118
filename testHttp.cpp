@@ -12,14 +12,22 @@ int main(){
   response.setHeader("Date","Fri, 08 Aug 2003 08:12:31 GMT");
   response.setHeader("A","Test");
   response.setHeader("Content-Type", "text/html");
-  string data = string("<html>") + "\r\n" + "<body><h1>Yo whats up</h1></body></html>" + "\r\n";
+
+  string dataS = string("<html>") + "\r\n" + "<body><h1>Yo whats up</h1></body></html>" + "\r\n";
+  vector<uint8_t> data(dataS.begin(),dataS.end());
   response.setData(data);
   ByteBlob b = response.encode();
   HttpResponse decoded = response.decode(b);
+  ByteBlob d = decoded.getData();
 
-  cout << "First Line: HTTP/" << decoded.getVersion() << " " << decoded.getStatus()<< endl;
-  decoded.printHeader();
-  cout << "Data: " << decoded.getData() << endl;
+  for(ByteBlob::iterator x=d.begin(); x<d.end(); x++){
+    cout << *x;
+    //data.push_back(*x);
+  }
+
+  //cout << "First Line: HTTP/" << decoded.getVersion() << " " << decoded.getStatus()<< endl;
+  //decoded.printHeader();
+  //cout << "Data: " << decoded.getData() << endl;
 
   /*request.setUrl("www.test.com/test");
   //

@@ -25,9 +25,10 @@ HttpResponse processRequest(HttpRequest r){
 	//cout << "URL: " << url << endl;
 
 	std::ifstream in(url.c_str());
-	std::string contents((std::istreambuf_iterator<char>(in)),
+
+	ByteBlob contents((std::istreambuf_iterator<char>(in)),
 	    std::istreambuf_iterator<char>());
-	cout << contents << '\n';
+	//cout << contents << '\n';
 	if(contents.empty()){
 		resp.setStatus(HttpResponse::NF_404);
 		return resp;
@@ -73,7 +74,7 @@ void receiveRequest(int clientSockfd){
 				string totalReqString = ssOverall.str();
 				vector<uint8_t> decoded(totalReqString.begin(), totalReqString.end());
 				HttpRequest req = HttpRequest::decode((ByteBlob)decoded);
-				HttpResponse resp = processRequest(req);
+				HttpResponse resp = processRequest(req); //Process the request object
 
 				ByteBlob respBB = resp.encode();
 				string respStr(respBB.begin(), respBB.end());
