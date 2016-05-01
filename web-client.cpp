@@ -153,6 +153,8 @@ int main(int argc, char* argv[])
 					cout << "--------totalRespString-------- " << endl << totalRespString << endl;
 
       	  vector<uint8_t> decoded(totalRespString.begin(), totalRespString.end());
+
+          cout << "made it here" << endl;
       	  response = HttpResponse::decode((ByteBlob)decoded);
 					//cout << "DATA: " << endl << response.getData() << endl;
       	  ssOverall.str("");
@@ -201,7 +203,7 @@ int main(int argc, char* argv[])
       ByteBlob data = response.getData();
       //os << response.getData();
       for(ByteBlob::iterator x=data.begin(); x<data.end(); x++){
-        cout << *x;
+        os << *x;
       }
 			os.close();
     }

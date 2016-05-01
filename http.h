@@ -253,8 +253,13 @@ HttpResponse HttpResponse::decode(ByteBlob response){
   while(true){
     char c1 = response.at(charCount);
     char c2 = response.at(charCount + 1);
+    cout << (int) response.at(charCount) << (int) response.at(charCount + 1) << endl;
+
     if(c1 == '\r' && c2 == '\n'){
       crlfCount++;
+      //cout << "Found one" << endl;
+    }else if((c1 == '\n' && c2 == '\r')&&(crlfCount==1)){
+      //cout << "Chill" << endl;
     }else{
       crlfCount = 0;
     }
@@ -264,7 +269,7 @@ HttpResponse HttpResponse::decode(ByteBlob response){
       break;
     }
 
-    charCount+=2;
+    charCount+=1;
   }
 
   //Save the http header as a string
@@ -276,6 +281,8 @@ HttpResponse HttpResponse::decode(ByteBlob response){
   ///////////////////////////////////////////////////////
   // Parse the header string to extract info
   ///////////////////////////////////////////////////////
+
+  cout << decoded;
 
   string delimiter = "\r\n";
   HttpResponse httpR;
