@@ -108,10 +108,12 @@ int main(int argc, char* argv[])
     request.setHeader("Accept", "text/html,application/xhtml+xml");
     request.setHeader("Accept-Language", "en-us,en;q=0.5");
     ByteBlob requestCopy = request.encode();
+    uint8_t* reqBytes = &requestCopy[0];
+    int reqByteSize = sizeof(uint8_t) * requestCopy.size();
 
     // send request
     std::string reqStr(requestCopy.begin(), requestCopy.end());
-    if (send(sockfd, reqStr.c_str(), reqStr.size(), 0) == -1) {
+    if (send(sockfd, reqBytes, reqByteSize, 0) == -1) {
       perror("send");
       return 4;
     }
@@ -122,47 +124,68 @@ int main(int argc, char* argv[])
     bool isEnd = false;
     std::string input;
     char buf[1000] = { 0 };
-    std::stringstream ssOverall;
-    std::stringstream ssIteration;
+    std::stringstream ssOverall(std::ios_base::out | std::ios_base::in | std::ios_base::binary);
+    std::stringstream ssIteration(std::ios_base::out | std::ios_base::in | std::ios_base::binary);
     const string endingStr = "\r\n\r\n";
-    unsigned int endingCount = 0;
     HttpResponse response;
-
+    int itercounter=0;
     while(!isEnd) {
       memset(buf, '\0', sizeof(buf));
+      int recieveOperationResult = recv(sockfd, buf, 1000, 0);
+      if (recieveOperationResult == 0) {
+        std::string totalRespString = ssOverall.str();
 
-      if (recv(sockfd, buf, 1000, 0) == -1) {
-      	perror("recv");
-      	return 5;
+        //  ByteBlob foo;
+        //  ssOverall.read(reinterpret_cast<const char*>(&foo), 32554);
+        // //--------------
+        // std::ofstream outfile ("new.txt",std::ofstream::binary);
+        // outfile.write(foo, totalRespString.size());
+        //--------------
+        cout << "--------totalRespString SIZE-------- " << endl << totalRespString.size() << endl;
+
+        vector<uint8_t> decoded(totalRespString.begin(), totalRespString.end());
+
+        cout << "made it here" << endl;
+        response = HttpResponse::decode((ByteBlob)decoded);
+        break;
+      } else if (recieveOperationResult == -1) {
+        perror("recv");
+        return 5;
       }
-
+      cout << "I: " << itercounter++ << endl;
       ssOverall << buf;
       ssIteration << buf;
       string currString = ssIteration.str();
 
       //cout << currString << endl;
 
-      // Test for end reached
-      for (unsigned int i = 0; i < currString.length(); i++) {
-      	if (currString[i] == endingStr[endingCount])
-      	  endingCount++;
-      	else
-      	  endingCount = 0;
-      	if (endingCount == 4) {
-      	  std::string totalRespString = ssOverall.str();
-					cout << "--------totalRespString-------- " << endl << totalRespString << endl;
-
-      	  vector<uint8_t> decoded(totalRespString.begin(), totalRespString.end());
-
-          cout << "made it here" << endl;
-      	  response = HttpResponse::decode((ByteBlob)decoded);
-					//cout << "DATA: " << endl << response.getData() << endl;
-      	  ssOverall.str("");
-      	  endingCount = 0;
-      	  isEnd = true;
-					break;
-      	}
-      }
+      // // Test for end reached
+      // for (unsigned int i = 0; i < currString.length(); i++) {
+      // 	if (currString[i] == endingStr[endingCount])
+      // 	  endingCount++;
+      // 	else
+      // 	  endingCount = 0;
+      // 	if (endingCount == 4) {
+      // 	  std::string totalRespString = ssOverall.str();
+      //     char* foo = new char[totalRespString.size()];
+      //     ssOverall.read(foo, totalRespString.size());
+      //     //--------------
+      //     std::ofstream outfile ("new.txt",std::ofstream::binary);
+      //     outfile.write(foo, totalRespString.size());
+      //     //--------------
+			// 		cout << "--------totalRespString-------- " << endl << currString << endl;
+      //
+      // 	  vector<uint8_t> decoded(totalRespString.begin(), totalRespString.end());
+      //
+      //     cout << "made it here" << endl;
+      // 	  response = HttpResponse::decode((ByteBlob)decoded);
+			// 		//cout << "DATA: " << endl << response.getData() << endl;
+      // 	  ssOverall.str("");
+      // 	  endingCount = 0;
+      // 	  isEnd = true;
+			// 		break;
+      // 	}
+      // }
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -201,7 +224,6 @@ int main(int argc, char* argv[])
     }
     else {
       ByteBlob data = response.getData();
-      //os << response.getData();
       for(ByteBlob::iterator x=data.begin(); x<data.end(); x++){
         os << *x;
       }

@@ -239,7 +239,7 @@ ByteBlob HttpResponse::encode(){
   vector<uint8_t> encoded(httpString.begin(),httpString.end());
   vector<uint8_t> data = getData();
   //Append the header blob to the data blob and return
-  encoded.insert(encoded.end(), data.begin(), data.end());
+  encoded.insert(std::end(encoded), std::begin(data), std::end(data));
   return (ByteBlob) encoded;
 }
 
@@ -253,7 +253,7 @@ HttpResponse HttpResponse::decode(ByteBlob response){
   while(true){
     char c1 = response.at(charCount);
     char c2 = response.at(charCount + 1);
-    cout << (int) response.at(charCount) << (int) response.at(charCount + 1) << endl;
+    // cout << (int) response.at(charCount) << (int) response.at(charCount + 1) << endl;
 
     if(c1 == '\r' && c2 == '\n'){
       crlfCount++;
@@ -282,7 +282,7 @@ HttpResponse HttpResponse::decode(ByteBlob response){
   // Parse the header string to extract info
   ///////////////////////////////////////////////////////
 
-  cout << decoded;
+  // cout << decoded;
 
   string delimiter = "\r\n";
   HttpResponse httpR;

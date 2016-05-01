@@ -4,7 +4,7 @@ CXXFLAGS= -g -Wall -pthread -std=c++11 $(CXXOPTIMIZE)
 USERID=EDIT_MAKE_FILE
 CLASSES=
 
-all: clean web-server web-client testHttp testWebServer
+all: clean web-server web-client
 
 web-server: $(CLASSES)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $@.cpp

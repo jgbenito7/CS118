@@ -35,6 +35,7 @@ HttpResponse processRequest(HttpRequest r){
 	}
 	resp.setHeader("content-language", "en");
 	resp.setHeader("content-type", "text/html; charset=UTF-8");
+	// resp.setHeader("content-length", "text/html; charset=UTF-8");
 	// resp.setHeader("Accept", "text/html,application/xhtml+xml");
 	//resp.setHeader("Accept-Language", "en-us,en;q=0.5");
 	resp.setData(contents);
@@ -72,14 +73,31 @@ void receiveRequest(int clientSockfd){
 				endingCount = 0;
 			if(endingCount == 4){
 				string totalReqString = ssOverall.str();
+				cout << "--------totalReqString--------" << endl << totalReqString << endl;
 				vector<uint8_t> decoded(totalReqString.begin(), totalReqString.end());
 				HttpRequest req = HttpRequest::decode((ByteBlob)decoded);
 				HttpResponse resp = processRequest(req); //Process the request object
 
 				ByteBlob respBB = resp.encode();
-				string respStr(respBB.begin(), respBB.end());
+				uint8_t* respBytes = &respBB[0];
+		  	int respBytesSize = sizeof(uint8_t) * respBB.size();
 
-				if (send(clientSockfd, respStr.c_str(), respStr.size(), 0) == -1) {
+				// cout << "Num bytes being sent total: " << respBB.size() << endl;
+				// cout << "Num bytes being sent, data: " << resp.getData().size() << endl;
+				// std::ofstream os("asdfasdfasdf.jpg");
+				// if (!os) {
+				// 	std::cerr<<"Error writing to ..."<<std::endl;
+				// }
+				// else {
+				// 	HttpResponse decodedResp = HttpResponse::decode(respBB);
+				// 	// ByteBlob data = resp.getData();
+				// 	ByteBlob data = decodedResp.getData();
+				// 	for(ByteBlob::iterator x=data.begin(); x<data.end(); x++){
+				// 		os << *x;
+				// 	}
+				// 	os.close();
+				// }
+				if (send(clientSockfd, respBytes, respBytesSize, 0) == -1) {
 					perror("send");
 					return;// 6;
 				}
@@ -92,7 +110,7 @@ void receiveRequest(int clientSockfd){
 		}
 	}
 	close(clientSockfd);
-
+	cout << "Server closing" << endl;;
 }
 
 int
