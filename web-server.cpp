@@ -18,13 +18,39 @@
 
 typedef std::string string;
 
-HttpResponse processRequest(HttpRequest r){
+HttpResponse processRequest(HttpRequest r, string dir){
 
 	HttpResponse resp;
-	string url = r.getUrl();
-	//cout << "URL: " << url << endl;
+	string url;
+	string error;
 
+	//Check if this is a relative dir
+	if(dir.front() == '.'){
+		dir.erase(0,2);
+	}
+
+	//check if this is root
+	if(dir.back()=='/' && dir.size()==1){
+		url = string("/") + r.getUrl();
+		cout << url << endl;
+
+	}else if(dir.back()=='/'){ //check for trailing slash
+		url = dir + r.getUrl();
+		cout << url << endl;
+	}else{
+		url = dir + "/" + r.getUrl();
+		cout << url << endl;
+	}
 	std::ifstream in(url.c_str());
+	/*if(() >> error){
+			cout << "Success";
+	}else{
+			cout << "Error code: " << strerror(errno);
+	}*/
+
+	//cout << "Url: " << url << endl;
+
+
 
 	ByteBlob contents((std::istreambuf_iterator<char>(in)),
 	    std::istreambuf_iterator<char>());
@@ -45,7 +71,9 @@ HttpResponse processRequest(HttpRequest r){
 	return resp;
 }
 
-void receiveRequest(int clientSockfd){
+void receiveRequest(int clientSockfd, string dir){
+
+
 	// read/write data from/into the connection
 	bool isEnd = false;
 	char buf[1000] = { 0 };
@@ -76,7 +104,7 @@ void receiveRequest(int clientSockfd){
 				// cout << "--------totalReqString--------" << endl << totalReqString << endl;
 				vector<uint8_t> decoded(totalReqString.begin(), totalReqString.end());
 				HttpRequest req = HttpRequest::decode((ByteBlob)decoded);
-				HttpResponse resp = processRequest(req); //Process the request object
+				HttpResponse resp = processRequest(req, dir); //Process the request object
 
 				ByteBlob respBB = resp.encode();
 				uint8_t* respBytes = &respBB[0];
@@ -168,7 +196,7 @@ main(int argc, char* argv[])
 		std::cout << "Accept a connection from: " << ipstr << ":" <<
 			ntohs(clientAddr.sin_port) << std::endl;
 
-		thread(receiveRequest, clientSockfd).detach();
+		thread(receiveRequest, clientSockfd, file_dir).detach();
 	}
 	return 0;
 }
