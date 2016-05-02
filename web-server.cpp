@@ -84,25 +84,25 @@ void receiveRequest(int clientSockfd){
 
 				// cout << "Num bytes being sent total: " << respBB.size() << endl;
 				// cout << "Num bytes being sent, data: " << resp.getData().size() << endl;
-				// std::ofstream os("asdfasdfasdf.jpg");
-				// if (!os) {
-				// 	std::cerr<<"Error writing to ..."<<std::endl;
-				// }
-				// else {
-				// 	HttpResponse decodedResp = HttpResponse::decode(respBB);
-				// 	// ByteBlob data = resp.getData();
-				// 	ByteBlob data = decodedResp.getData();
-				// 	for(ByteBlob::iterator x=data.begin(); x<data.end(); x++){
-				// 		os << *x;
-				// 	}
-				// 	os.close();
-				// }
+				std::ofstream os("asdfasdfasdf.jpg");
+				if (!os) {
+					std::cerr<<"Error writing to ..."<<std::endl;
+				}
+				else {
+					HttpResponse decodedResp = HttpResponse::decode(respBB);
+					// ByteBlob data = resp.getData();
+					ByteBlob data = decodedResp.getData();
+					for(ByteBlob::iterator x=data.begin(); x<data.end(); x++){
+						os << *x;
+					}
+					os.close();
+				}
 				if (send(clientSockfd, respBytes, respBytesSize, 0) == -1) {
 					perror("send");
 					return;// 6;
 				}
 
-				//ssOverall.str(""); doesn't matter, we're closing connection
+				//ssOverall.str(""); doesn't 	matter, we're closing connection
 				//endingCount = 0;
 				isEnd = true;
 				break;

@@ -239,7 +239,7 @@ ByteBlob HttpResponse::encode(){
   vector<uint8_t> encoded(httpString.begin(),httpString.end());
   vector<uint8_t> data = getData();
   //Append the header blob to the data blob and return
-  encoded.insert(std::end(encoded), std::begin(data), std::end(data));
+  encoded.insert(encoded.end(), data.begin(), data.end());
   return (ByteBlob) encoded;
 }
 

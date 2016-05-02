@@ -122,40 +122,28 @@ int main(int argc, char* argv[])
 
     // receive response
     bool isEnd = false;
-    std::string input;
-    char buf[1000] = { 0 };
-    std::stringstream ssOverall(std::ios_base::out | std::ios_base::in | std::ios_base::binary);
-    std::stringstream ssIteration(std::ios_base::out | std::ios_base::in | std::ios_base::binary);
-    const string endingStr = "\r\n\r\n";
+    uint8_t buf[1000] = { 0 };
+    // std::stringstream ssOverall(std::ios_base::out | std::ios_base::in | std::ios_base::binary);
+    // std::stringstream ssIteration(std::ios_base::out | std::ios_base::in | std::ios_base::binary);
+    // const string endingStr = "\r\n\r\n";
     HttpResponse response;
-    int itercounter=0;
+    ByteBlob preDecodeResponse;
     while(!isEnd) {
       memset(buf, '\0', sizeof(buf));
       int recieveOperationResult = recv(sockfd, buf, 1000, 0);
       if (recieveOperationResult == 0) {
-        std::string totalRespString = ssOverall.str();
+        preDecodeResponse.insert(preDecodeResponse.end(), buf, buf+1000);
 
-        //  ByteBlob foo;
-        //  ssOverall.read(reinterpret_cast<const char*>(&foo), 32554);
-        // //--------------
-        // std::ofstream outfile ("new.txt",std::ofstream::binary);
-        // outfile.write(foo, totalRespString.size());
-        //--------------
-        cout << "--------totalRespString SIZE-------- " << endl << totalRespString.size() << endl;
-
-        vector<uint8_t> decoded(totalRespString.begin(), totalRespString.end());
-
-        cout << "made it here" << endl;
-        response = HttpResponse::decode((ByteBlob)decoded);
+        response = HttpResponse::decode(preDecodeResponse);
         break;
       } else if (recieveOperationResult == -1) {
         perror("recv");
         return 5;
       }
-      cout << "I: " << itercounter++ << endl;
-      ssOverall << buf;
-      ssIteration << buf;
-      string currString = ssIteration.str();
+      preDecodeResponse.insert(preDecodeResponse.end(), buf, buf+1000);
+      // ssOverall << buf;
+      // ssIteration << buf;
+      // string currString = ssIteration.str();
 
       //cout << currString << endl;
 
