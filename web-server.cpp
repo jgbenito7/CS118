@@ -73,7 +73,7 @@ void receiveRequest(int clientSockfd){
 				endingCount = 0;
 			if(endingCount == 4){
 				string totalReqString = ssOverall.str();
-				cout << "--------totalReqString--------" << endl << totalReqString << endl;
+				// cout << "--------totalReqString--------" << endl << totalReqString << endl;
 				vector<uint8_t> decoded(totalReqString.begin(), totalReqString.end());
 				HttpRequest req = HttpRequest::decode((ByteBlob)decoded);
 				HttpResponse resp = processRequest(req); //Process the request object
@@ -82,7 +82,7 @@ void receiveRequest(int clientSockfd){
 				uint8_t* respBytes = &respBB[0];
 		  	int respBytesSize = sizeof(uint8_t) * respBB.size();
 
-				// cout << "Num bytes being sent total: " << respBB.size() << endl;
+				cout << "Num bytes being sent total: " << respBB.size() << endl;
 				// cout << "Num bytes being sent, data: " << resp.getData().size() << endl;
 				std::ofstream os("asdfasdfasdf.jpg");
 				if (!os) {

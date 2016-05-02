@@ -128,19 +128,24 @@ int main(int argc, char* argv[])
     // const string endingStr = "\r\n\r\n";
     HttpResponse response;
     ByteBlob preDecodeResponse;
+    int count = 0;
     while(!isEnd) {
       memset(buf, '\0', sizeof(buf));
-      int recieveOperationResult = recv(sockfd, buf, 1000, 0);
-      if (recieveOperationResult == 0) {
-        preDecodeResponse.insert(preDecodeResponse.end(), buf, buf+1000);
+      int bytesRead = recv(sockfd, buf, 1000, 0);
+      cout << "Iteration: " << count <<", Bytes Read: " << bytesRead << endl;
 
+      if (bytesRead > 0) {
+        preDecodeResponse.insert(preDecodeResponse.end(), buf, buf+bytesRead);
+      } else if (bytesRead == 0) {
+        // preDecodeResponse.insert(preDecodeResponse.end(), buf, buf+bytesRead);
         response = HttpResponse::decode(preDecodeResponse);
         break;
-      } else if (recieveOperationResult == -1) {
+      } else if (bytesRead == -1) {
         perror("recv");
         return 5;
       }
-      preDecodeResponse.insert(preDecodeResponse.end(), buf, buf+1000);
+      count++;
+
       // ssOverall << buf;
       // ssIteration << buf;
       // string currString = ssIteration.str();

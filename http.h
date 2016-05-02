@@ -352,7 +352,7 @@ HttpResponse HttpResponse::decode(ByteBlob response){
         }
       }else if(headerEnd){
         //Save the remainder of the response as a byteblob of data
-        for(ByteBlob::iterator x=(response.begin()+90); x<response.end(); x++){
+        for(ByteBlob::iterator x=(response.begin()+charCount); x<response.end(); x++){
           data.push_back(*x);
         }
         break;
