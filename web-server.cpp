@@ -82,7 +82,7 @@ void receiveRequest(int clientSockfd){
 				uint8_t* respBytes = &respBB[0];
 		  	int respBytesSize = sizeof(uint8_t) * respBB.size();
 
-				cout << "Num bytes being sent total: " << respBB.size() << endl;
+				// cout << "Num bytes being sent total: " << respBB.size() << endl;
 				// cout << "Num bytes being sent, data: " << resp.getData().size() << endl;
 				std::ofstream os("asdfasdfasdf.jpg");
 				if (!os) {

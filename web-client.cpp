@@ -145,40 +145,6 @@ int main(int argc, char* argv[])
         return 5;
       }
       count++;
-
-      // ssOverall << buf;
-      // ssIteration << buf;
-      // string currString = ssIteration.str();
-
-      //cout << currString << endl;
-
-      // // Test for end reached
-      // for (unsigned int i = 0; i < currString.length(); i++) {
-      // 	if (currString[i] == endingStr[endingCount])
-      // 	  endingCount++;
-      // 	else
-      // 	  endingCount = 0;
-      // 	if (endingCount == 4) {
-      // 	  std::string totalRespString = ssOverall.str();
-      //     char* foo = new char[totalRespString.size()];
-      //     ssOverall.read(foo, totalRespString.size());
-      //     //--------------
-      //     std::ofstream outfile ("new.txt",std::ofstream::binary);
-      //     outfile.write(foo, totalRespString.size());
-      //     //--------------
-			// 		cout << "--------totalRespString-------- " << endl << currString << endl;
-      //
-      // 	  vector<uint8_t> decoded(totalRespString.begin(), totalRespString.end());
-      //
-      //     cout << "made it here" << endl;
-      // 	  response = HttpResponse::decode((ByteBlob)decoded);
-			// 		//cout << "DATA: " << endl << response.getData() << endl;
-      // 	  ssOverall.str("");
-      // 	  endingCount = 0;
-      // 	  isEnd = true;
-			// 		break;
-      // 	}
-      // }
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
