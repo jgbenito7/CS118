@@ -25,7 +25,7 @@ HttpResponse processRequest(HttpRequest r, string dir){
 	string error;
 
 	//Check if this is a relative dir
-	if(dir.front() == '.'){
+	if(dir.front() == '.' && dir.size()>1){
 		dir.erase(0,2);
 	}
 
@@ -33,6 +33,9 @@ HttpResponse processRequest(HttpRequest r, string dir){
 	if(dir.back()=='/' && dir.size()==1){
 		url = string("/") + r.getUrl();
 		cout << url << endl;
+
+	}else if(dir.front() =='.'){
+		url = r.getUrl();
 
 	}else if(dir.back()=='/'){ //check for trailing slash
 		url = dir + r.getUrl();
