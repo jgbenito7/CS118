@@ -24,6 +24,9 @@ HttpResponse processRequest(HttpRequest r, string dir){
 	string url;
 	string error;
 
+	// cout << "Directory: " << dir << endl;
+	// cout << "URL: " << r.getUrl() << endl;
+
 	//Check if this is a relative dir
 	if(dir.front() == '.' && dir.size()>1){
 		dir.erase(0,2);
@@ -44,6 +47,9 @@ HttpResponse processRequest(HttpRequest r, string dir){
 		url = dir + "/" + r.getUrl();
 		cout << url << endl;
 	}
+
+	if (url.back() == '/')
+		url = url + "index.html";
 	std::ifstream in(url.c_str());
 	/*if(() >> error){
 			cout << "Success";

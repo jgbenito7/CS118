@@ -102,6 +102,8 @@ int main(int argc, char* argv[])
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
+    if (requestN.back() == '/')
+  		requestN = requestN + "index.html";
     // set up HttpRequest
     HttpRequest request;
     request.setUrl(requestN);
