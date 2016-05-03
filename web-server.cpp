@@ -24,8 +24,8 @@ HttpResponse processRequest(HttpRequest r, string dir){
 	string url;
 	string error;
 
-	// cout << "Directory: " << dir << endl;
-	// cout << "URL: " << r.getUrl() << endl;
+	// cout << "-----" << endl << "URL: " << r.getUrl() << endl;
+	// cout << "Directory: " << dir << endl << "-----" << endl;
 
 	//Check if this is a relative dir
 	if(dir.front() == '.' && dir.size()>1){
@@ -50,32 +50,28 @@ HttpResponse processRequest(HttpRequest r, string dir){
 
 	if (url.back() == '/')
 		url = url + "index.html";
-	std::ifstream in(url.c_str());
-	/*if(() >> error){
-			cout << "Success";
-	}else{
-			cout << "Error code: " << strerror(errno);
-	}*/
+	try {
+		std::ifstream in(url.c_str());
+		ByteBlob contents((std::istreambuf_iterator<char>(in)),
+		    std::istreambuf_iterator<char>());
+		//cout << contents << '\n';
+		if(contents.empty()){
+			resp.setStatus(HttpResponse::NF_404);
+			return resp;
+		}
 
-	//cout << "Url: " << url << endl;
-
-
-
-	ByteBlob contents((std::istreambuf_iterator<char>(in)),
-	    std::istreambuf_iterator<char>());
-	//cout << contents << '\n';
-	if(contents.empty()){
-		resp.setStatus(HttpResponse::NF_404);
-		return resp;
+		// resp.setHeader("content-length", "text/html; charset=UTF-8");
+		// resp.setHeader("Accept", "text/html,application/xhtml+xml");
+		//resp.setHeader("Accept-Language", "en-us,en;q=0.5");
+		resp.setData(contents);
+		resp.setStatus(HttpResponse::OK_200);
+		//in.close();
+	}	catch (...){
+		resp.setStatus(HttpResponse::BR_400);
 	}
+
 	resp.setHeader("content-language", "en");
 	resp.setHeader("content-type", "text/html; charset=UTF-8");
-	// resp.setHeader("content-length", "text/html; charset=UTF-8");
-	// resp.setHeader("Accept", "text/html,application/xhtml+xml");
-	//resp.setHeader("Accept-Language", "en-us,en;q=0.5");
-	resp.setData(contents);
-	resp.setStatus(HttpResponse::OK_200);
-	//in.close();
 
 	return resp;
 }
