@@ -152,11 +152,22 @@ main(int argc, char* argv[])
 	// create a socket using TCP IP
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-	char* hostN = argv[1];
-	char* portN = argv[2];
-	string file_dir = argv[3];
+	char* hostN;
+	char* portN;
+	string file_dir;
 
-	int portNumInt = std::stoi(portN);
+	int portNumInt;
+
+	if(argc < 4){
+		hostN = "localhost";
+		portNumInt = 4000;
+		file_dir = ".";
+	} else{
+		hostN = argv[1];
+	 	portN = argv[2];
+		file_dir = argv[3];
+		portNumInt = std::stoi(portN);
+	}
 
 	// allow others to reuse the address
 	int yes = 1;
